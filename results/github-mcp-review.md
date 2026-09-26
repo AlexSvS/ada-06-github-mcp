@@ -104,6 +104,9 @@ Potential defects:
 
 ## 6. Traceability
 Issue → Requirement/Spec → PR → Code → Test
+|                            Issue/Need                            |   PR  |       Code / Files      |    Test / Evidence    | Estado |
+|:----------------------------------------------------------------:|:-----:|:-----------------------:|:---------------------:|:------:|
+| #2/Fix incorrect package version expected by test_package_import | PR #1 | src/tests/test_setup.py | test_package_import() | Gap    |
 ## 7. Permission Review
 Authentication:
 GitHub token permissions:
