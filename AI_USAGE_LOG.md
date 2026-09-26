@@ -49,22 +49,25 @@ The student scoped and constrained the inspection to a strictly read-only analys
 Impact:
 N/A
 
-### Entry 03 — Title
+### Entry 03 — Issue and Pull Request Analysis via GitHub MCP
 
-Tool: 
-Date: 
+Tool: Antigravity (Gemini 3.8 Flash)
+Date: 2026-09-26
 Stage: Issue / PR analysis
 
 Prompt:
+"Using GitHub MCP, read Issue #2 in AlexSvS/ada-05-spec-driven-feature. Do not modify the Issue. Analyze it as a software engineer: 1. Problem / requested behavior. 2. Expected behavior. 3. Acceptance information explicitly present. 4. Ambiguities or missing information. 5. Relevant code areas in the repository. 6. Existing tests related to the issue. 7. Risks or edge cases. 8. If REQUIREMENTS.md or SPEC.md exists, identify related IDs/sections. Separate facts from the Issue from your engineering inferences. Do not invent product decisions."
 
+"Using GitHub MCP, inspect Pull Request #1 in AlexSvS/ada-05-spec-driven-feature. READ ONLY. Do not comment, approve, merge, edit or close the PR. Inspect: PR title and description, changed files, diff / code changes, commits, tests changed or added, review comments if available. Evaluate: 1. What behavior changes? 2. Which Issue / requirement appears to be addressed? 3. Which files implement the change? 4. Are tests present for the behavior? 5. Are there obvious gaps between the Issue and implementation? 6. Is there unrelated scope? 7. What should a human reviewer verify manually? Classify findings as: OBSERVATION, RISK, QUESTION, POTENTIAL DEFECT. Do not post anything to GitHub."
 
 AI contribution:
-
+Conducted an in-depth read-only analysis of Issue #2 and Pull Request #1 in AlexSvS/ada-05-spec-driven-feature using GitHub MCP tools (issue_read, pull_request_read). For Issue #2, separated explicit issue facts from engineering inferences, pinpointed the version mismatch causing test failure, analyzed missing acceptance criteria, and mapped relevant code areas and requirements (C-02, NFR-02, Task T-01). For PR #1, examined the diff, commits, changed files, and reviews; identified that new requirements (FR-07 to FR-09) lacked implementation and test coverage, detected that commit f4b58c4 introduced an unannounced test change that broke test execution, and categorized findings into OBSERVATION, RISK, QUESTION, and POTENTIAL DEFECT.
 
 Student decision:
-
+The student valuated the findings, validated the defect classification and scope gaps, and noted the causality between PR #1 commit f4b58c4 and Issue #2 by checking manually the original code. Then the student filled the github-mcp-review.md with the correct information provided by the agent.
 
 Impact:
+N/A
 
 ### Entry 04 — Title
 
