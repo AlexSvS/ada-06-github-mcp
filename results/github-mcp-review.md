@@ -42,9 +42,21 @@ The repository adheres to a classic 3-Tier Layered Architecture:
     - Customer: An immutable @dataclass(frozen=True) holding id, name, and email.
 
 Important files:
-
+- `src/customer_search/__main__.py`: Execution entry point for CLI module execution (`python -m customer_search`).
+- `src/customer_search/cli.py`: Presentation layer handling CLI argument parsing, console output, exit code management.
+- `src/customer_search/service.py`: Business logic layer executing case-insensitive substring search across name and email, and input validation.
+- `src/customer_search/storage.py`: Persistence layer handling JSON file reading, writing, and integrity checks.
+- `src/customer_search/models.py`: Domain entity definition (`Customer` dataclass).
+- `customers.json`: Default local dataset file.
+- `pyproject.toml`: Project build configuration and package metadata.
+- `REQUIREMENTS.md`, `SPEC.md`, `ARQUITECTURE.md`, `TASKS.md`, `docs/traceability.md`: Specification and traceability documentation.
 
 Tests:
+- `tests/test_setup.py`: Verifies Python runtime (>= 3.11), package version and importability (`test_package_import`), dependency cleanliness, and local dataset structure.
+- `tests/test_service.py`: Unit tests for `CustomerService` covering name/email partial matching, case-insensitivity, OR logic, and validation rules using a mock storage (`FakeStorage`).
+- `tests/test_storage.py`: Persistence tests for `CustomerStorage` covering JSON reading, file creation, empty/malformed files, schema errors, and Unicode preservation using `tmp_path`.
+- `tests/test_cli.py`: CLI integration and subprocess tests verifying exit codes (0, 1, 2), stderr error messages, 100-record search latency benchmark (<1.0s), and offline execution enforcement.
+- `tests/conftest.py`: Shared pytest fixtures (`sample_customers_data`, `hundred_customers_data`, `hundred_customers_file`, `block_network`).
 
 
 ## 4. Issue Analysis
@@ -97,10 +109,18 @@ Observations:
 - No files implement the new functional requirements
 
 Risks:
+- Modifying REQUIREMENTS.md without updating SPEC.md, TASKS.md, or docs/traceability.md breaks specification integrity and traceability.
+- Introducing FR-08 (deterministic ordering) without implementation conflicts with existing behavior that preserves file encounter order.
+- Merging PR #1 as-is will break master's test suite due to the failing version assertion in test_package_import().
 
 Questions:
+- What is the intended ordering rule for FR-08 (e.g., ascending by ID, alphabetical by name)?
+- What is the definition of "invalid characters or an invalid input format" for FR-09?
+- Was the version assertion bump to 0.2.0 in tests/test_setup.py intentional, and if so, why were src/customer_search/__init__.py and pyproject.toml not updated?
 
 Potential defects:
+- test_package_import() fails in tests/test_setup.py because it asserts customer_search.__version__ == "0.2.0" while src/customer_search/__init__.py defines "0.1.0".
+- Unannounced scope in PR #1: Commit f4b58c4 alters test_setup.py despite PR title and description indicating only requirements additions.
 
 ## 6. Traceability
 Issue → Requirement/Spec → PR → Code → Test
@@ -108,18 +128,27 @@ Issue → Requirement/Spec → PR → Code → Test
 |:----------------------------------------------------------------:|:-----:|:-----------------------:|:---------------------:|:------:|
 | #2/Fix incorrect package version expected by test_package_import | PR #1 | src/tests/test_setup.py | test_package_import() | Gap    |
 ## 7. Permission Review
-Authentication:
-GitHub token permissions:
-MCP read-only:
-Enabled toolsets:
-Write capabilities exposed:
+Authentication: GitHub Fine-Grained Personal Access Token (Bearer token configured in global `~/.gemini/config/mcp_config.json`)
+GitHub token permissions: Repository Contents (Read), Issues (Read), and Pull requests (Read) restricted to selected repository (`AlexSvS/ada-05-spec-driven-feature`)
+MCP read-only: Enforced via `"X-MCP-Readonly": "true"` header
+Enabled toolsets: `"X-MCP-Toolsets": "repos,issues,pull_requests"`
+Write capabilities exposed: None (0 write tools exposed; write/mutation tools were completely omitted from the tool schema during server negotiation)
+
 ## 8. Security Notes
-- Credential exposure
-- Prompt injection
-- Excess permissions
-- Repository scope
+- Credential exposure: Stored the PAT in the global user profile (`~/.gemini/config/mcp_config.json`) instead of inside the project repository to prevent committing secrets to version control.
+- Prompt injection: Agent instructions strictly bounded to read-only queries with explicit repository scoping, preventing unauthorized remote exploration.
+- Excess permissions: Followed principle of least privilege using read-only scopes. Write methods are unavailable at both the token and MCP header levels.
+- Repository scope: Fine-grained token restricted strictly to target repositories rather than all account resources; queries restricted to `AlexSvS/ada-05-spec-driven-feature`.
+
 ## 9. Human Review
 What did you verify yourself?
+I manually inspected the codebase in `AlexSvS/ada-05-spec-driven-feature` to verify the 3-tier architecture, test files, and package version (`0.1.0`).. I also erified commit history on `update-branch` (commits `66ed604` and `f4b58c4`) to establish causality between the version assertion edit and Issue #2. And lastly, I verified MCP server configuration (`~/.gemini/config/mcp_config.json`) and inspected exposed tool schemas to ensure zero write tools were registered.
+
 What AI conclusions did you reject or modify?
+I rejected certain tools described in the agent since it invented some of them during the run. I modify some entries in the AI-USAGE-LOG.md to be more undertandable and natural and put N/A on the Impact section since nothing in the reviewed repository was changed.
+
 ## 10. Conclusion
 What did MCP add to the engineering workflow?
+- Real-time contextual introspection: Provided direct access to repository source code, issues, PR diffs, and commit history directly inside the development workflow without context switching to a browser.
+- Secure read-only auditing: Enabled thorough architectural analysis and pre-merge PR inspection while enforcing strict read-only constraints, eliminating the risk of accidental mutations.
+- Enhanced triage efficiency: Enabled fast root-cause identification for Issue #2 and rapid defect discovery in PR #1 with full traceability across requirements, code, and tests.
