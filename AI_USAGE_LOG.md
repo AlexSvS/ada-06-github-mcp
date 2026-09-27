@@ -69,19 +69,20 @@ The student valuated the findings, validated the defect classification and scope
 Impact:
 N/A
 
-### Entry 04 — Title
+### Entry 04 — GitHub MCP Permissions Review and Risk Analysis
 
-Tool: 
-Date: 
-Stage: Permission/security review 
+Tool: Antigravity (Gemini 3.8 Flash)
+Date: 2026-09-26
+Stage: Permission/security review
 
 Prompt:
-
+"Inspect the GitHub MCP capabilities available in this session. Do not execute any write action. Question: Could you create an Issue, comment on a Pull Request, or modify repository files using the currently exposed MCP tools? Explain your answer using the actual tools available. Do not attempt the write operation." / "Add a brief risk analysis to MCP_GITHUB_PERMISSION_REVIEW.md in the form of a table with the following information: - Risk - An example - Mitigation"
 
 AI contribution:
-
+Audited the exposed GitHub MCP tools, schemas, and global configuration headers (X-MCP-Readonly: true, X-MCP-Toolsets), formally verifying that all issue, PR, and repository write/mutation capabilities were omitted. Formulated and appended a structured Risk Analysis table to docs/MCP_GITHUB_PERMISSION_REVIEW.md detailing risks (unauthorized remote modifications, credential leakage, excessive token scope, and unintended repository access), concrete examples, and operational mitigations.
 
 Student decision:
-
+The student audited the active MCP tools and configurations to confirm read-only enforcement, verified the permission review findings, and instructed the agent to document key operational risks and mitigation controls in docs/MCP_GITHUB_PERMISSION_REVIEW.md.
 
 Impact:
+N/A
